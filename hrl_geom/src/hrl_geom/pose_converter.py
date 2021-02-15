@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 #
-# Provides scripts for automatically converting from different pose types 
+# Provides scripts for automatically converting from different pose types
 # to others.
 #
 # Copyright (c) 2012, Georgia Tech Research Corporation
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -16,7 +16,7 @@
 #     * Neither the name of the Georgia Tech Research Corporation nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY GEORGIA TECH RESEARCH CORPORATION ''AS IS'' AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -40,11 +40,13 @@ from geometry_msgs.msg import Transform, TransformStamped, Vector3
 from geometry_msgs.msg import Twist, TwistStamped
 import hrl_geom.transformations as trans
 
+
 def rot_mat_to_axis_angle(R):
     ang = np.arccos((np.trace(R) - 1.0)/2.0)
-    axis = np.array([R[2,1]-R[1,2], R[0,2]-R[2,0], R[1,0]-R[0,1]])
+    axis = np.array([R[2, 1]-R[1, 2], R[0, 2]-R[2, 0], R[1, 0]-R[0, 1]])
     axis = axis / np.linalg.norm(axis)
     return (axis, ang)
+
 
 def axis_angle_to_rot_mat(axis, ang):
     axis = axis / np.linalg.norm(axis)
@@ -57,11 +59,13 @@ def axis_angle_to_rot_mat(axis, ang):
 ##
 # Static class with a set of conversion functions for converting any of the supported
 # pose types into any of the others without having to provide the type explicity.
+
+
 class PoseConv(object):
     POSE_TYPES = [
-        'pose_msg', 
-        'pose_stamped_msg', 
-        'point_msg', 
+        'pose_msg',
+        'pose_stamped_msg',
+        'point_msg',
         'point_stamped_msg',
         'tf_msg',
         'tf_stamped_msg',
@@ -136,7 +140,7 @@ class PoseConv(object):
             rospy.logwarn("[pose_converter] Unknown pose type.")
             return None
         else:
-            return Pose(Point(*homo_mat[:3,3].T.A[0]), Quaternion(*quat_rot))
+            return Pose(Point(*homo_mat[:3, 3].T.A[0]), Quaternion(*quat_rot))
 
     ##
     # @return geometry_msgs.PoseStamped
@@ -153,7 +157,7 @@ class PoseConv(object):
             ps.header.seq = header[0]
             ps.header.stamp = header[1]
             ps.header.frame_id = header[2]
-        ps.pose = Pose(Point(*homo_mat[:3,3].T.A[0]), Quaternion(*quat_rot))
+        ps.pose = Pose(Point(*homo_mat[:3, 3].T.A[0]), Quaternion(*quat_rot))
         return ps
 
     ##
@@ -164,7 +168,7 @@ class PoseConv(object):
         if homo_mat is None:
             rospy.logwarn("[pose_converter] Unknown pose type.")
             return None
-        return Point(*homo_mat[:3,3].T.A[0])
+        return Point(*homo_mat[:3, 3].T.A[0])
 
     ##
     # @return geometry_msgs.PointStamped
@@ -181,7 +185,7 @@ class PoseConv(object):
             ps.header.seq = header[0]
             ps.header.stamp = header[1]
             ps.header.frame_id = header[2]
-        ps.point = Point(*homo_mat[:3,3].T.A[0])
+        ps.point = Point(*homo_mat[:3, 3].T.A[0])
         return ps
 
     ##
@@ -193,7 +197,7 @@ class PoseConv(object):
             rospy.logwarn("[pose_converter] Unknown pose type.")
             return None
         else:
-            return Transform(Vector3(*homo_mat[:3,3].T.A[0]), Quaternion(*quat_rot))
+            return Transform(Vector3(*homo_mat[:3, 3].T.A[0]), Quaternion(*quat_rot))
 
     ##
     # @return geometry_msgs.TransformStamped
@@ -210,7 +214,8 @@ class PoseConv(object):
             tf_stamped.header.seq = header[0]
             tf_stamped.header.stamp = header[1]
             tf_stamped.header.frame_id = header[2]
-        tf_stamped.transform = Transform(Vector3(*homo_mat[:3,3].T.A[0]), Quaternion(*quat_rot))
+        tf_stamped.transform = Transform(
+            Vector3(*homo_mat[:3, 3].T.A[0]), Quaternion(*quat_rot))
         return tf_stamped
 
     ##
@@ -222,7 +227,7 @@ class PoseConv(object):
             rospy.logwarn("[pose_converter] Unknown pose type.")
             return None
         else:
-            return Twist(Vector3(*homo_mat[:3,3].T.A[0]), Vector3(*euler_rot))
+            return Twist(Vector3(*homo_mat[:3, 3].T.A[0]), Vector3(*euler_rot))
 
     ##
     # @return geometry_msgs.TwistStamped
@@ -240,7 +245,7 @@ class PoseConv(object):
             header_msg.seq = header[0]
             header_msg.stamp = header[1]
             header_msg.frame_id = header[2]
-        return TwistStamped(header_msg, Twist(Vector3(*homo_mat[:3,3].T.A[0]), Vector3(*euler_rot)))
+        return TwistStamped(header_msg, Twist(Vector3(*homo_mat[:3, 3].T.A[0]), Vector3(*euler_rot)))
 
     ##
     # @return 4x4 numpy mat
@@ -262,7 +267,7 @@ class PoseConv(object):
             rospy.logwarn("[pose_converter] Unknown pose type.")
             return None, None
         else:
-            return homo_mat[:3,3].copy(), homo_mat[:3,:3].copy()
+            return homo_mat[:3, 3].copy(), homo_mat[:3, :3].copy()
 
     ##
     # @return (3 list, 4 list)
@@ -273,7 +278,7 @@ class PoseConv(object):
             rospy.logwarn("[pose_converter] Unknown pose type.")
             return None, None
         else:
-            return copy.copy(list(homo_mat[:3,3].T.A[0])), copy.copy(quat_rot)
+            return copy.copy(list(homo_mat[:3, 3].T.A[0])), copy.copy(quat_rot)
 
     ##
     # @return (3 list, 3 list)
@@ -284,7 +289,7 @@ class PoseConv(object):
             rospy.logwarn("[pose_converter] Unknown pose type.")
             return None, None
         else:
-            return copy.copy(list(homo_mat[:3,3].T.A[0])), copy.copy(euler_rot)
+            return copy.copy(list(homo_mat[:3, 3].T.A[0])), copy.copy(euler_rot)
 
     ##
     # @return (3 list, (3 list, float))
@@ -295,14 +300,15 @@ class PoseConv(object):
             rospy.logwarn("[pose_converter] Unknown pose type.")
             return None, None
         else:
-            return copy.copy(list(homo_mat[:3,3].T.A[0])), rot_mat_to_axis_angle(homo_mat[:3,:3])
+            return copy.copy(list(homo_mat[:3, 3].T.A[0])), rot_mat_to_axis_angle(homo_mat[:3, :3])
 
     @staticmethod
     def _make_generic(args):
         try:
             if type(args[0]) == str:
                 frame_id = args[0]
-                header, homo_mat, rot_quat, rot_euler = PoseConv._make_generic(args[1:])
+                header, homo_mat, rot_quat, rot_euler = PoseConv._make_generic(
+                    args[1:])
                 if homo_mat is None:
                     return None, None, None, None
                 if header is None:
@@ -317,37 +323,45 @@ class PoseConv(object):
                 if pose_type is None:
                     return None, None, None, None
                 if pose_type == 'pose_msg':
-                    homo_mat, rot_quat, rot_euler = PoseConv._extract_pose_msg(args[0])
+                    homo_mat, rot_quat, rot_euler = PoseConv._extract_pose_msg(
+                        args[0])
                     return None, homo_mat, rot_quat, rot_euler
                 elif pose_type == 'pose_stamped_msg':
-                    homo_mat, rot_quat, rot_euler = PoseConv._extract_pose_msg(args[0].pose)
+                    homo_mat, rot_quat, rot_euler = PoseConv._extract_pose_msg(
+                        args[0].pose)
                     seq = args[0].header.seq
                     stamp = args[0].header.stamp
                     frame_id = args[0].header.frame_id
                     return [seq, stamp, frame_id], homo_mat, rot_quat, rot_euler
                 elif pose_type == 'tf_msg':
-                    homo_mat, rot_quat, rot_euler = PoseConv._extract_tf_msg(args[0])
+                    homo_mat, rot_quat, rot_euler = PoseConv._extract_tf_msg(
+                        args[0])
                     return None, homo_mat, rot_quat, rot_euler
                 elif pose_type == 'tf_stamped_msg':
-                    homo_mat, rot_quat, rot_euler = PoseConv._extract_tf_msg(args[0].transform)
+                    homo_mat, rot_quat, rot_euler = PoseConv._extract_tf_msg(
+                        args[0].transform)
                     seq = args[0].header.seq
                     stamp = args[0].header.stamp
                     frame_id = args[0].header.frame_id
                     return [seq, stamp, frame_id], homo_mat, rot_quat, rot_euler
                 elif pose_type == 'point_msg':
-                    homo_mat, rot_quat, rot_euler = PoseConv._extract_point_msg(args[0])
+                    homo_mat, rot_quat, rot_euler = PoseConv._extract_point_msg(
+                        args[0])
                     return None, homo_mat, rot_quat, rot_euler
                 elif pose_type == 'point_stamped_msg':
-                    homo_mat, rot_quat, rot_euler = PoseConv._extract_point_msg(args[0].point)
+                    homo_mat, rot_quat, rot_euler = PoseConv._extract_point_msg(
+                        args[0].point)
                     seq = args[0].header.seq
                     stamp = args[0].header.stamp
                     frame_id = args[0].header.frame_id
                     return [seq, stamp, frame_id], homo_mat, rot_quat, rot_euler
                 elif pose_type == 'twist_msg':
-                    homo_mat, rot_quat, rot_euler = PoseConv._extract_twist_msg(args[0])
+                    homo_mat, rot_quat, rot_euler = PoseConv._extract_twist_msg(
+                        args[0])
                     return None, homo_mat, rot_quat, rot_euler
                 elif pose_type == 'twist_stamped_msg':
-                    homo_mat, rot_quat, rot_euler = PoseConv._extract_twist_msg(args[0].twist)
+                    homo_mat, rot_quat, rot_euler = PoseConv._extract_twist_msg(
+                        args[0].twist)
                     seq = args[0].header.seq
                     stamp = args[0].header.stamp
                     frame_id = args[0].header.frame_id
@@ -365,13 +379,14 @@ class PoseConv(object):
 
                     if pose_type == 'pos_axis_angle':
                         homo_mat = np.mat(np.eye(4))
-                        homo_mat[:3,:3] = axis_angle_to_rot_mat(args[0][1][0], args[0][1][1])
+                        homo_mat[:3, :3] = axis_angle_to_rot_mat(
+                            args[0][1][0], args[0][1][1])
                         quat = trans.quaternion_from_matrix(homo_mat)
                         rot_euler = trans.euler_from_matrix(homo_mat)
                     elif pose_type == 'pos_rot':
                         # rotation matrix
                         homo_mat = np.mat(np.eye(4))
-                        homo_mat[:3,:3] = np.mat(args[0][1])
+                        homo_mat[:3, :3] = np.mat(args[0][1])
                         quat = trans.quaternion_from_matrix(homo_mat)
                         rot_euler = trans.euler_from_matrix(homo_mat)
                     else:
@@ -386,7 +401,8 @@ class PoseConv(object):
                             rot_euler = rot_list
                         elif pose_type == 'pos_quat':
                             # quaternion rotation
-                            homo_mat = np.mat(trans.quaternion_matrix(rot_list))
+                            homo_mat = np.mat(
+                                trans.quaternion_matrix(rot_list))
                             quat = rot_list
                             rot_euler = trans.euler_from_quaternion(quat)
 
@@ -399,40 +415,49 @@ class PoseConv(object):
 
     @staticmethod
     def _extract_pose_msg(pose):
-        px = pose.position.x; py = pose.position.y; pz = pose.position.z
-        ox = pose.orientation.x; oy = pose.orientation.y
-        oz = pose.orientation.z; ow = pose.orientation.w
+        px = pose.position.x
+        py = pose.position.y
+        pz = pose.position.z
+        ox = pose.orientation.x
+        oy = pose.orientation.y
+        oz = pose.orientation.z
+        ow = pose.orientation.w
         quat = [ox, oy, oz, ow]
         rot_euler = trans.euler_from_quaternion(quat)
         homo_mat = np.mat(trans.quaternion_matrix(quat))
-        homo_mat[:3,3] = np.mat([[px, py, pz]]).T
+        homo_mat[:3, 3] = np.mat([[px, py, pz]]).T
         return homo_mat, quat, rot_euler
 
     @staticmethod
     def _extract_tf_msg(tf_msg):
-        px = tf_msg.translation.x; py = tf_msg.translation.y; pz = tf_msg.translation.z 
-        ox = tf_msg.rotation.x; oy = tf_msg.rotation.y
-        oz = tf_msg.rotation.z; ow = tf_msg.rotation.w
+        px = tf_msg.translation.x
+        py = tf_msg.translation.y
+        pz = tf_msg.translation.z
+        ox = tf_msg.rotation.x
+        oy = tf_msg.rotation.y
+        oz = tf_msg.rotation.z
+        ow = tf_msg.rotation.w
         quat = [ox, oy, oz, ow]
         rot_euler = trans.euler_from_quaternion(quat)
         homo_mat = np.mat(trans.quaternion_matrix(quat))
-        homo_mat[:3,3] = np.mat([[px, py, pz]]).T
+        homo_mat[:3, 3] = np.mat([[px, py, pz]]).T
         return homo_mat, quat, rot_euler
 
     @staticmethod
     def _extract_twist_msg(twist_msg):
         pos = [twist_msg.linear.x, twist_msg.linear.y, twist_msg.linear.z]
-        rot_euler = [twist_msg.angular.x, twist_msg.angular.y, twist_msg.angular.z]
+        rot_euler = [twist_msg.angular.x,
+                     twist_msg.angular.y, twist_msg.angular.z]
         quat = trans.quaternion_from_euler(*rot_euler, axes='sxyz')
         homo_mat = np.mat(trans.euler_matrix(*rot_euler))
-        homo_mat[:3,3] = np.mat([pos]).T
+        homo_mat[:3, 3] = np.mat([pos]).T
         return homo_mat, quat, rot_euler
 
     @staticmethod
     def _extract_point_msg(point_msg):
         pos = [point_msg.x, point_msg.y, point_msg.z]
         homo_mat = np.mat(np.eye(4))
-        homo_mat[:3,3] = np.mat([pos]).T
+        homo_mat[:3, 3] = np.mat([pos]).T
         return homo_mat, [0., 0., 0., 1.], [0., 0., 0.]
 
 
@@ -442,51 +467,55 @@ def main():
     errors = 0
     for type_from in PoseConv.POSE_TYPES:
         for type_to in PoseConv.POSE_TYPES:
-            print 
-            print "Types: FROM %s, TO %s" % (type_from, type_to)
-            exec("from_pose = PoseConv.to_%s(pose)" % type_from)
+            print()
+            print("Types: FROM %s, TO %s" % (type_from, type_to))
+            exec("from_pose = PoseConv.to_%s(pose)" %
+                 type_from, locals(), globals())
             if from_pose is None or (type(from_pose) is tuple and from_pose[0] is None):
-                print "from_pose ERROR\n" * 5
+                print("from_pose ERROR\n" * 5)
                 errors += 1
                 continue
-            exec("to_pose = PoseConv.to_%s('base_link', from_pose)" % type_to)
+            exec("to_pose = PoseConv.to_%s('base_link', from_pose)" %
+                 type_to, locals(), globals())
             if to_pose is None or (type(to_pose) is tuple and to_pose[0] is None):
-                print "to_pose ERROR\n" * 5
+                print("to_pose ERROR\n" * 5)
                 errors += 1
                 continue
-            exec("back_pose = PoseConv.to_%s(to_pose)" % type_from)
+            exec("back_pose = PoseConv.to_%s(to_pose)" %
+                 type_from, locals(), globals())
             if back_pose is None or (type(back_pose) is tuple and back_pose[0] is None):
-                print "back_pose ERROR\n" * 5
+                print("back_pose ERROR\n" * 5)
                 errors += 1
                 continue
-            exec("orig_pose = PoseConv.to_pos_quat(back_pose)")
+            exec("orig_pose = PoseConv.to_pos_quat(back_pose)", locals(), globals())
             if orig_pose is None or (type(orig_pose) is tuple and orig_pose[0] is None):
-                print "orig_pose ERROR\n" * 5
-                print pose
-                print orig_pose
+                print("orig_pose ERROR\n" * 5)
+                print(pose)
+                print(orig_pose)
                 errors += 1
                 continue
             if not np.allclose(orig_pose[0], pose[0]):
-                print "orig_pose pos ERROR\n" * 5
-                print pose
-                print orig_pose
+                print("orig_pose pos ERROR\n" * 5)
+                print(pose)
+                print(orig_pose)
                 errors += 1
                 continue
             if 'point' not in type_to + type_from and not np.allclose(orig_pose[1], pose[1]):
-                print "orig_pose rot ERROR\n" * 5
-                print pose
-                print orig_pose
+                print("orig_pose rot ERROR\n" * 5)
+                print(pose)
+                print(orig_pose)
                 errors += 1
                 continue
-            print "-" * 50
+            print("-" * 50)
             if type_from != PoseConv.get_type(from_pose) or type_to != PoseConv.get_type(to_pose):
-                print "get_type ERROR\n" * 5
+                print("get_type ERROR\n" * 5)
                 errors += 1
                 continue
-            print from_pose
-            print "-" * 20
-            print to_pose
-    print "\n\nErrors: %d" % errors
+            print(from_pose)
+            print("-" * 20)
+            print(to_pose)
+    print("\n\nErrors: %d" % errors)
+
 
 if __name__ == "__main__":
     main()
